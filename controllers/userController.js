@@ -17,7 +17,7 @@ exports.createUser = async (req, res) => {
         }
        
         const existingUser = await User.findOne({ email });
-        console.log("existingUser",existingUser);
+       // console.log("existingUser",existingUser);
         if (existingUser) {
             return res.status(400).json({ message: 'Email already exists.' });
         }
@@ -40,14 +40,14 @@ exports.createUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const {password,email } = req.body;
-        console.log("password",password)
+       // console.log("password",password)
         const existingUser = await User.findOne({ email });       
         if (!existingUser) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
         console.log("after existingUser")
         const isPasswordValid = await existingUser.comparePassword(password);
-        console.log("isPasswordValid",isPasswordValid)
+       // console.log("isPasswordValid",isPasswordValid)
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
