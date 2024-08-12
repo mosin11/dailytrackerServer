@@ -80,7 +80,7 @@ exports.resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
 
     await user.save();
-
+    console.log("Password reset successful")
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     res.status(500).json({ message: 'Error resetting password' });
