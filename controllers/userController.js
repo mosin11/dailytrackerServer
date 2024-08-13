@@ -1,11 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const logger = require('../utils/logger');
-
-
-
-
-
 exports.createUser = async (req, res) => {
     try {
         const { name, password, email, phoneNumber } = req.body;
