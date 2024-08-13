@@ -25,7 +25,7 @@ router.post('/addNotes', authenticateToken,async (req, res) => {
 // Route to fetch all notes
 router.get('/getAllNotes', authenticateToken,async (req, res) => {
     try {
-        const notes = await Note.find({ userId: req.user.userId });
+        const notes = await Note.find({ userId: req.user.userId }).sort({ date: -1 });
         logger.debug("noted All notes fuccessfully")
         res.status(200).json(notes); // Respond with all notes
     } catch (err) {
