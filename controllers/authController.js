@@ -87,3 +87,21 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Error resetting password' });
   }
 };
+
+
+
+exports.authToken = async (req, res) => {
+  try {
+    
+    const { userId } = req.user;
+    console.log("req, token",userId);
+   
+    if (!userId) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+    logger.debug("Password reset successful");
+    res.status(200).json({ message: 'Password reset successful' ,userId:userId });
+  } catch (error) {
+    res.status(500).json({ message: 'Error resetting password' });
+  }
+};
