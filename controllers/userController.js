@@ -2,6 +2,7 @@ const User = require('../models/userModel');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
 
 
 
@@ -27,6 +28,7 @@ exports.createUser = async (req, res) => {
         const savedUser =  await newUser.save();
         
         res.status(201).json({ message: 'User created successfully!' });
+        logger.debug("User created successfully");
     } catch (error) {
         if (error.code === 11000) {
             // Duplicate key error
@@ -45,7 +47,7 @@ exports.getUsers = async (req, res) => {
         if (!existingUser) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
-        console.log("after existingUser")
+        
         const isPasswordValid = await existingUser.comparePassword(password);
        // console.log("isPasswordValid",isPasswordValid)
         if (!isPasswordValid) {
@@ -57,7 +59,12 @@ exports.getUsers = async (req, res) => {
             expiresIn: '1h',
         });
 
-        res.status(200).json({ message: 'Login successful', token: token,user: existingUser });
+        logger.debug("Login successful")
+        return res.status(200).json({
+            message: 'Login successful',
+            token: token,
+            user: existingUser,
+        });
         
     } catch (error) {
        
@@ -71,6 +78,7 @@ exports.updateUser = async (req, res) => {
         const { name, password, email, phoneNumber } = req.body;
         const updatedUser = await User.findByIdAndUpdate(id, { name, password, email, phoneNumber }, { new: true });
         res.status(200).json(updatedUser);
+        logger.debug("user updated successfully successful")
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -80,6 +88,7 @@ exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
         await User.findByIdAndDelete(id);
+        logger.debug("User deleted successfully!")
         res.status(200).json({ message: 'User deleted successfully!' });
     } catch (error) {
         res.status(400).json({ message: error.message });

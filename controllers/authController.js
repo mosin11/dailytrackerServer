@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { generateResetPasswordEmail } = require('../emailTemplates/resetPasswordEmailTemplate');
+const logger = require('../utils/logger');
 
 exports.forgotPassword = async (req, res) => {
   try {
@@ -22,8 +23,8 @@ exports.forgotPassword = async (req, res) => {
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
-    //  console.log("resetPasswordToken",resetPasswordToken)
-    // Set token expiration time (e.g., 1 hour)
+    
+    // Set token expiration time (e.g., 10 mints)
     const resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
     user.resetPasswordToken = resetPasswordToken;
@@ -50,7 +51,7 @@ exports.forgotPassword = async (req, res) => {
       subject: 'Password Reset Request',
       html: message,
     });
-    console.log("Password reset link sent to email")
+    logger.debug("Password reset link sent to email")
     res.status(200).json({ message: 'Password reset link sent to email' });
   } catch (error) {
     res.status(500).json({ message: 'Error sending email' });
@@ -80,7 +81,7 @@ exports.resetPassword = async (req, res) => {
     user.resetPasswordExpire = undefined;
 
     await user.save();
-    console.log("Password reset successful")
+    logger.debug("Password reset successful")
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     res.status(500).json({ message: 'Error resetting password' });
