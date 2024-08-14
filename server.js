@@ -16,11 +16,7 @@ app.use('/api/users', userRoutes); // Mount user routes under `/api`
 
 app.use('/api/notes', notesRoutes); // Apply routes under /api/notes
 
-app.post('/api/videocalls/userId/log', (req, res) => {
-    const { userId, action } = req.body;
-    console.log(`Action: ${action}, User ID: ${userId}`);
-    res.status(200).send('Log received');
-  });
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

@@ -2,7 +2,7 @@ const { PeerServer } = require('peer');
 const express = require('express');
 const app = express();
 
-const PORT = process.env.PEER_PORT || 5003;
+const PORT = process.env.PEER_PORT || 5004;
 
 const peerServer = PeerServer({ port: PORT, path: '/api/videocalls/userId', debug: true });
 
@@ -23,6 +23,12 @@ peerServer.on('call', (call) => {
   console.log(`Call initiated from ${call.peer}`);
 });
 
-app.listen(PORT, () => {
-  console.log(`PeerJS server running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`PeerJS server running on port ${PORT}`);
+// });
+
+app.post('/api/videocalls/userId/log', (req, res) => {
+    const { userId, action } = req.body;
+    console.log(`Action: ${action}, User ID: ${userId}`);
+    res.status(200).send('Log received');
+  });
