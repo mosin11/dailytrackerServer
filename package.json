@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "concurrently \"nodemon server.js\" \"nodemon peerServer.js\""
   },
   "keywords": [],
   "author": "",
@@ -19,9 +19,11 @@
     "jsonwebtoken": "9.0.2",
     "mongoose": "8.5.2",
     "nodemailer": "6.9.14",
+    "peer": "1.0.2",
     "winston": "3.14.1"
   },
   "devDependencies": {
+    "concurrently": "8.2.2",
     "nodemon": "3.1.4"
   }
 }
