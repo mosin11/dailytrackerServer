@@ -12,13 +12,13 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
+        logger.info("in authToken decoded info",decoded);
 
         req.user = decoded;
-        logger.debug("token decoded")
         next();
     } catch (error) {
-        res.status(400).json({ message: 'Invalid token.' });
+        logger.error("in authToken error",error);
+        res.status(400).json({ isVerified:false,message: 'Invalid token.' });
     }
 };
 

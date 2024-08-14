@@ -93,15 +93,18 @@ exports.resetPassword = async (req, res) => {
 exports.authToken = async (req, res) => {
   try {
     
-    const { userId } = req.user;
-    console.log("req, token",userId);
-   
-    if (!userId) {
+    const { userId,userName } = req.user;
+
+    logger.info("in authToken info",userId,userName);
+    const isvalideUser = await User.findById(userId);
+    if (!isvalideUser) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
     logger.debug("Password reset successful");
-    res.status(200).json({ message: 'Password reset successful' ,userId:userId });
+    res.status(200).json({ message: 'Auth successful' ,userId:userId, userName:userName });
   } catch (error) {
-    res.status(500).json({ message: 'Error resetting password' });
+    logger.verbose("in authToken error",error);
+    logger.error("in authToken error",error);
+    res.status(500).json({ message: 'Login Error' });
   }
 };

@@ -6,6 +6,8 @@ const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, },
     phoneNumber: { type: String, required: true },
     date: { type: Date, default: Date.now },
+    isVerified: { type: Boolean, default: false }, 
+    createDate :{type: Date, default: Date.now},
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date, default: Date.now },
 });
