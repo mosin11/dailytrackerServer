@@ -35,14 +35,14 @@ exports.createUser = async (req, res) => {
 exports.getUsers = async (req, res) => {
     try {
         const {password,email } = req.body;
-       // console.log("password",password)
+      
         const existingUser = await User.findOne({ email });       
         if (!existingUser) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
         
         const isPasswordValid = await existingUser.comparePassword(password);
-       // console.log("isPasswordValid",isPasswordValid)
+       
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
