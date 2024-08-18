@@ -50,7 +50,8 @@ exports.getUsers = async (req, res) => {
          // Generate a JWT token
          const token = jwt.sign({ userId: existingUser._id,
                                   userName: existingUser.name,
-                                  isVerified: existingUser.isVerified
+                                  isVerified: existingUser.isVerified,
+                                  phoneNumber: existingUser.phoneNumber
                                  }, 
                                   process.env.JWT_SECRET, {
             expiresIn: '24h',

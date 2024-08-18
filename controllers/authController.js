@@ -1,10 +1,12 @@
 const crypto = require('crypto');
-const User = require('../models/userModel'); 
+const User = require('../models/userModel');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { generateResetPasswordEmail } = require('../emailTemplates/resetPasswordEmailTemplate');
+const { otpEmailTemplate } = require('../emailTemplates/otpEmailTemplate');
 const logger = require('../utils/logger');
+const OTP = require('../models/OTP');
 
 exports.forgotPassword = async (req, res) => {
   try {
@@ -18,12 +20,12 @@ exports.forgotPassword = async (req, res) => {
 
     // Generate a reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
-   
+
     const resetPasswordToken = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
-    
+
     // Set token expiration time (e.g., 10 mints)
     const resetPasswordExpire = Date.now() + 10 * 60 * 1000;
 
@@ -37,7 +39,7 @@ exports.forgotPassword = async (req, res) => {
 
     // Email message
     const message = generateResetPasswordEmail(user, resetUrl);
-    
+
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
@@ -45,7 +47,7 @@ exports.forgotPassword = async (req, res) => {
         pass: process.env.EMAIL_PASSWORD,
       },
     });
-    
+
     await transporter.sendMail({
       to: user.email,
       subject: 'Password Reset Request',
@@ -92,19 +94,84 @@ exports.resetPassword = async (req, res) => {
 
 exports.authToken = async (req, res) => {
   try {
-    
-    const { userId,userName } = req.user;
 
-    logger.info("in authToken info",userId,userName);
+    const { userId, userName, phoneNumber } = req.user;
+
+    logger.info("in authToken info", userId, userName);
     const isvalideUser = await User.findById(userId);
     if (!isvalideUser) {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
     logger.debug("Password reset successful");
-    res.status(200).json({ message: 'Auth successful' ,userId:userId, userName:userName });
+    res.status(200).json({ message: 'Auth successful', userId: userId, phoneNumber: phoneNumber, userName: userName });
   } catch (error) {
-    logger.verbose("in authToken error",error);
-    logger.error("in authToken error",error);
+    logger.verbose("in authToken error", error);
+    logger.error("in authToken error", error);
     res.status(500).json({ message: 'Login Error' });
+  }
+};
+
+
+// Email Verification
+exports.sendOTPToEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+   
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+
+    const isvalideUser = await User.findOne({ email });
+    if (!isvalideUser && isvalideUser !=null ) {
+      console.log("isvalideUser ",isvalideUser)
+      return res.status(400).json({ message: 'Invalid email' });
+    }
+
+   // Save OTP in the database
+   console.log("email is ",email, otp, expiresAt);
+   await OTP.create({ email, otp, expiresAt });
+
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const message =  otpEmailTemplate(otp);
+    await transporter.sendMail({
+      to: email,
+      subject: 'Email Verification OTP',
+      html: message,
+    });
+
+    res.status(200).json({ message: 'OTP sent to email' });
+  } catch (error) {
+    logger.error("Error sending OTP", error);
+    res.status(500).json({ message: 'Error sending OTP' });
+  }
+};
+
+// Verify OTP
+exports.verifyOTP = async (req, res) => {
+  try {
+    console.log("req.body",req.body)
+    const { email, otp } = req.body;
+
+    const otpRecord = await OTP.findOne({ email, otp });
+    if (!otpRecord) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+
+    if (otpRecord.expiresAt < Date.now()) {
+      return res.status(400).json({ message: 'OTP has expired' });
+    }
+
+    // OTP is valid, proceed with further steps
+    await OTP.deleteOne({ email, otp }); // Optionally delete or invalidate the OTP
+
+    res.status(200).json({ message: 'OTP verified successfully!' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

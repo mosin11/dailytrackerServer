@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { forgotPassword, resetPassword,authToken } = require('../controllers/authController');
+const { forgotPassword, resetPassword,authToken,sendOTPToEmail,verifyOTP } = require('../controllers/authController');
 const authenticateToken =require('../middleware/authenticateToken ');
 
 router.post('/auth/signup', userController.createUser);
@@ -15,8 +15,8 @@ router.post('/forgot-password', forgotPassword);
 // Reset Password Route
 router.post('/reset-password/:token', resetPassword);
 router.get('/auth/authToken', authenticateToken,authToken);
-
-
+router.post('/auth/email-verification', sendOTPToEmail);
+router.post('/auth/verifyOtp', verifyOTP);
 
 
 module.exports = router;
