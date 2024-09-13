@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        logger.info("in authToken decoded info",decoded);
+        //logger.info("in authToken decoded info",decoded);
 
         req.user = decoded;
         next();

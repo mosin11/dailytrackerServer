@@ -4,6 +4,7 @@ const connectDB = require('./config/dbConfig');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors');
 const notesRoutes = require('./routes/notesRoutes');
+const plansRoutes = require('./routes/plansRoutes');
 const helmet = require('helmet');
 
 connectDB();
@@ -15,6 +16,7 @@ app.use(express.json()); // Middleware to parse JSON
 app.use('/api/users', userRoutes); // Mount user routes under `/api`
 
 app.use('/api/notes', notesRoutes); // Apply routes under /api/notes
+app.use('/api/plans', plansRoutes); // Apply routes under /api/notes
 
 
 
