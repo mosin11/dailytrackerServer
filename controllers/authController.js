@@ -115,6 +115,7 @@ exports.authToken = async (req, res) => {
 // Email Verification
 exports.sendOTPToEmail = async (req, res) => {
   try {
+    logger.info("enter in sendOTPToEmail",req.body)
     const { email } = req.body;
    
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -122,12 +123,12 @@ exports.sendOTPToEmail = async (req, res) => {
 
     const isvalideUser = await User.findOne({ email });
     if (!isvalideUser && isvalideUser !=null ) {
-      console.log("isvalideUser ",isvalideUser)
+      logger.info("isvalideUser ",isvalideUser)
       return res.status(400).json({ message: 'Invalid email' });
     }
 
    // Save OTP in the database
-   console.log("email is ",email, otp, expiresAt);
+   //console.log("email is ",email, otp, expiresAt);
    await OTP.create({ email, otp, expiresAt });
 
     const transporter = nodemailer.createTransport({
@@ -155,7 +156,7 @@ exports.sendOTPToEmail = async (req, res) => {
 // Verify OTP
 exports.verifyOTP = async (req, res) => {
   try {
-    console.log("req.body",req.body)
+   // console.log("req.body",req.body)
     const { email, otp } = req.body;
 
     const otpRecord = await OTP.findOne({ email, otp });
@@ -173,5 +174,26 @@ exports.verifyOTP = async (req, res) => {
     res.status(200).json({ message: 'OTP verified successfully!' });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+// Controller to change password
+exports.changePassword = async (req, res) => {
+  try {
+      const userId = req.user.id; // Assuming you're using JWT and user ID is in req.user
+      const { currentPassword, newPassword } = req.body;
+
+      const user = await User.findById(userId); // Adjust according to your model
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      const isMatch = await user.comparePassword(currentPassword); // Adjust if you're using a different method to compare passwords
+      if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+
+      user.password = newPassword; // Update password
+      await user.save();
+
+      res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+      res.status(500).json({ message: error.message });
   }
 };

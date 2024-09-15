@@ -86,4 +86,21 @@ router.put('/updateNote/:id', authenticateToken,async (req, res) => {
         res.status(500).json({ message: 'Error updating note', error: err });
     }
 });
+
+// Route to get the total count of notes
+router.get('/totalNotesCount', authenticateToken, async (req, res) => {
+    try {
+        const totalNotes = await Note.countDocuments({ userId: req.user.userId });
+        logger.debug("Fetched total notes count successfully");
+        res.status(200).json({ totalNotes });
+    } catch (err) {
+        res.status(500).json({ message: 'Error fetching total notes count', error: err });
+    }
+});
+
+
+
+
+
+
 module.exports = router;

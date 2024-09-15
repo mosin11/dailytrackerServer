@@ -4,12 +4,10 @@ const logger = require('../utils/logger');
 exports.createUser = async (req, res) => {
     try {
         const { name, password, email, phoneNumber } = req.body;
-       
         // Check if email is provided
         if (!email) {
             return res.status(400).json({ message: 'Email is required.' });
-        }
-       
+        }  
         const existingUser = await User.findOne({ email });
        // console.log("existingUser",existingUser);
         if (existingUser) {
@@ -90,5 +88,31 @@ exports.deleteUser = async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully!' });
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+};
+
+exports.getUserProfile = async (req, res) => {
+    try {
+        logger.info("enter getUserProfile");
+        const userId = req.user.userId; 
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+    } catch (error) {
+        logger.error("error in getUserProfile",error)
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.updateUserProfile = async (req, res) => {
+    try {
+        logger.info("enter in updateUserProfile");
+        const userId = req.user.userId; 
+        const updatedUser = await User.findByIdAndUpdate(userId, req.body, { new: true });
+        if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+        res.json(updatedUser);
+    } catch (error) {
+        logger.error(error.message)
+        res.status(500).json({ message: error.message });
     }
 };
