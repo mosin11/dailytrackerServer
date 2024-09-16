@@ -103,7 +103,7 @@ exports.authToken = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
     logger.debug("Password reset successful");
-    res.status(200).json({ message: 'Auth successful', userId: userId, phoneNumber: phoneNumber, userName: userName });
+    res.status(200).json({ message: 'Auth successful',isVerified : isvalideUser.isVerified, userId: userId, phoneNumber: phoneNumber, userName: userName });
   } catch (error) {
     logger.verbose("in authToken error", error);
     logger.error("in authToken error", error);
