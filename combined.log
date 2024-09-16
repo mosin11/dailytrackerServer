@@ -1140,3 +1140,13 @@
 {"level":"info","message":"enter in updateUserProfile"}
 {"level":"info","message":"enter getUserProfile"}
 {"level":"info","message":"enter getUserProfile"}
+{"level":"info","message":"in authToken info"}
+{"level":"info","message":"in authToken info"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}
+{"level":"info","message":"enter getUserProfile"}
+{"level":"info","message":"enter getUserProfile"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}
+{"email":"mosinzhb32@gmail.com","level":"info","message":"enter in sendOTPToEmail"}

@@ -4,6 +4,7 @@ const logger = require('../utils/logger');
 exports.createUser = async (req, res) => {
     try {
         const { name, password, email, phoneNumber } = req.body;
+        const isVerified = true;
         // Check if email is provided
         if (!email) {
             return res.status(400).json({ message: 'Email is required.' });
@@ -14,7 +15,7 @@ exports.createUser = async (req, res) => {
             return res.status(400).json({ message: 'Email already exists.' });
         }
    
-        const newUser = new User({ name, password, email, phoneNumber });
+        const newUser = new User({ name, password, email, isVerified,phoneNumber });
         
         const savedUser =  await newUser.save();
         

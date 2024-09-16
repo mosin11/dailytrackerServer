@@ -122,10 +122,15 @@ exports.sendOTPToEmail = async (req, res) => {
     const expiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
 
     const isvalideUser = await User.findOne({ email });
+    
     if (!isvalideUser && isvalideUser != null) {
       logger.info("isvalideUser ", isvalideUser)
       return res.status(400).json({ message: 'Invalid email' });
     }
+
+      if (isvalideUser) {
+            return res.status(400).json({ message: 'Email already exists.' });
+        }
 
     // Save OTP in the database
     //console.log("email is ",email, otp, expiresAt);
@@ -167,15 +172,11 @@ exports.verifyOTP = async (req, res) => {
     if (otpRecord.expiresAt < Date.now()) {
       return res.status(400).json({ message: 'OTP has expired' });
     }
-    // OTP is valid, proceed with updating the user's verification status
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    user.isVerified = true; // Update the isVerified status to true
-    await user.save(); // Save the updated user
-    // OTP is valid, proceed with further steps
+      const existingUser = await User.findOne({ email });
+       // console.log("existingUser",existingUser);
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already exists.' });
+        }
     await OTP.deleteOne({ email, otp }); // Optionally delete or invalidate the OTP
 
     res.status(200).json({ message: 'OTP verified successfully!' });
