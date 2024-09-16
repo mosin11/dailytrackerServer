@@ -115,21 +115,21 @@ exports.authToken = async (req, res) => {
 // Email Verification
 exports.sendOTPToEmail = async (req, res) => {
   try {
-    logger.info("enter in sendOTPToEmail",req.body)
+    logger.info("enter in sendOTPToEmail", req.body)
     const { email } = req.body;
-   
+
     const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
 
     const isvalideUser = await User.findOne({ email });
-    if (!isvalideUser && isvalideUser !=null ) {
-      logger.info("isvalideUser ",isvalideUser)
+    if (!isvalideUser && isvalideUser != null) {
+      logger.info("isvalideUser ", isvalideUser)
       return res.status(400).json({ message: 'Invalid email' });
     }
 
-   // Save OTP in the database
-   //console.log("email is ",email, otp, expiresAt);
-   await OTP.create({ email, otp, expiresAt });
+    // Save OTP in the database
+    //console.log("email is ",email, otp, expiresAt);
+    await OTP.create({ email, otp, expiresAt });
 
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
@@ -139,7 +139,7 @@ exports.sendOTPToEmail = async (req, res) => {
       },
     });
 
-    const message =  otpEmailTemplate(otp);
+    const message = otpEmailTemplate(otp);
     await transporter.sendMail({
       to: email,
       subject: 'Email Verification OTP',
@@ -156,7 +156,7 @@ exports.sendOTPToEmail = async (req, res) => {
 // Verify OTP
 exports.verifyOTP = async (req, res) => {
   try {
-   // console.log("req.body",req.body)
+    // console.log("req.body",req.body) isVerified
     const { email, otp } = req.body;
 
     const otpRecord = await OTP.findOne({ email, otp });
@@ -167,7 +167,14 @@ exports.verifyOTP = async (req, res) => {
     if (otpRecord.expiresAt < Date.now()) {
       return res.status(400).json({ message: 'OTP has expired' });
     }
+    // OTP is valid, proceed with updating the user's verification status
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
+    user.isVerified = true; // Update the isVerified status to true
+    await user.save(); // Save the updated user
     // OTP is valid, proceed with further steps
     await OTP.deleteOne({ email, otp }); // Optionally delete or invalidate the OTP
 
@@ -180,20 +187,20 @@ exports.verifyOTP = async (req, res) => {
 // Controller to change password
 exports.changePassword = async (req, res) => {
   try {
-      const userId = req.user.id; // Assuming you're using JWT and user ID is in req.user
-      const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id; // Assuming you're using JWT and user ID is in req.user
+    const { currentPassword, newPassword } = req.body;
 
-      const user = await User.findById(userId); // Adjust according to your model
-      if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await User.findById(userId); // Adjust according to your model
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-      const isMatch = await user.comparePassword(currentPassword); // Adjust if you're using a different method to compare passwords
-      if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+    const isMatch = await user.comparePassword(currentPassword); // Adjust if you're using a different method to compare passwords
+    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
 
-      user.password = newPassword; // Update password
-      await user.save();
+    user.password = newPassword; // Update password
+    await user.save();
 
-      res.json({ message: 'Password updated successfully' });
+    res.json({ message: 'Password updated successfully' });
   } catch (error) {
-      res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
